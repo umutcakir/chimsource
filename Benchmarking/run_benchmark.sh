@@ -13,7 +13,7 @@ cd benchmarking/
 
 ROOT_DIR="$(pwd)"
 NUC_DIR="cDNA_sequences"
-PEP_DIR="chimeric_peptides"
+PEP_DIR="simulated_chimeric_peptides"
 OUT_ROOT="bench_out"
 LOG_CSV="benchmark_results.csv"
 THREADS=$(seq 1 128)
