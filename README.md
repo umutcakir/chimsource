@@ -91,7 +91,9 @@ Contains tabular data on detected chimeric and non-chimeric sequences with these
 
 - For development/editable installation
 > git clone https://github.com/umutcakir/chimsource
+
 > cd chimsource
+
 > pip install -e .
 
 ChiMSource was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discrimination between chimeric proteins with unique sources in the genome and proteins that have multiple alternative sources, which is essential for their functional analysis. For biological context and related studies, see our publication: Çakır et al. (2024, preprint).
