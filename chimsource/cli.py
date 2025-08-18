@@ -288,7 +288,6 @@ def process_sequences_helper(args):
     )
 
 
-# Replace the process_sequences_parallel function with this updated version
 def process_sequences_parallel(fasta1_headers_all, fasta1_sequences_all, fasta2_headers,
                                fasta2_sequences, max_gap, speed_up_by_blast, blast_output,
                                n_jobs, codon_table, max_transcript_length, max_flanking_seq):
@@ -362,7 +361,7 @@ def clean_header(header):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='ChimSource - Identify chimeric sequences in nucleotide databases through frameshift analysis',
+        description='ChiMSource - Identify chimeric sequences in nucleotide databases through frameshift analysis',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
@@ -599,3 +598,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+
