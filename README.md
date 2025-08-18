@@ -1,4 +1,4 @@
-# ShiftSCAN: Shift detection and Source Confirmation by Alignment and Navigation  
+# ChimSource: Shift detection and Source Confirmation by Alignment and Navigation  
 
 A computational pipeline for detecting alternative chimeric and non-chimeric sources of mass spectrometry-identified peptides.
 
@@ -6,7 +6,7 @@ A computational pipeline for detecting alternative chimeric and non-chimeric sou
 
 ## Overview
 
-ShiftSCAN enables systematic identification of alternative genomic sources for chimeric peptides. The tool addresses critical challenges in programmed ribosomal frameshifting (PRF) studies by: 
+ChimSource enables systematic identification of alternative genomic sources for chimeric peptides. The tool addresses critical challenges in programmed ribosomal frameshifting (PRF) studies by: 
 
 - Identifying potential alternative loci for chimeric peptides
 - Differentiating between unique and multi-source chimeric origins
@@ -29,15 +29,15 @@ Key applications include functional genomics studies of non-canonical translatio
 
 ## Available Commands
 
-ShiftSCAN operates through a single command with multiple configurable parameters:
+ChimSource operates through a single command with multiple configurable parameters:
 
-### shiftscan
+### chimsource
 
 Identifies chimeric sequences in nucleotide databases through frameshift analysis.
 
 ### Usage
 
-> shiftscan --nucleotide_file <genome.fasta> --peptide_file <peptides.fasta> [--max_gap 2] [--codon_table 1] [--num_threads 1] [--blast False] [--sensitivity 5.0] [--word_size 2] [--evalue 1000] [--output results] [--max_transcript_length 30000] [--max_flanking_seq 500] [--no_reverse_complement_check False]
+> chimsource --nucleotide_file <genome.fasta> --peptide_file <peptides.fasta> [--max_gap 2] [--codon_table 1] [--num_threads 1] [--blast False] [--sensitivity 5.0] [--word_size 2] [--evalue 1000] [--output results] [--max_transcript_length 30000] [--max_flanking_seq 500] [--no_reverse_complement_check False]
 
 ### Parameters
 
@@ -73,7 +73,7 @@ Contains tabular data on detected chimeric and non-chimeric sequences with these
 
 ---
 
-## ShiftScan Installation Guide
+## ChimSource Installation Guide
 
 ### Requirements
 
@@ -86,18 +86,18 @@ Contains tabular data on detected chimeric and non-chimeric sequences with these
 ### Installation
 
 - Install from PyPI
-> pip install shiftscan
+> pip install chimsource
 
 
 - For development/editable installation
-> git clone https://github.com/umutcakir/shiftscan
-> cd shiftscan
+> git clone https://github.com/umutcakir/chimsource
+> cd chimsource
 > pip install -e .
 
-ShiftSCAN was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discrimination between chimeric proteins with unique sources in the genome and proteins that have multiple alternative sources, which is essential for their functional analysis. For biological context and related studies, see our publication: Çakır et al. (2024, preprint).
+ChimSource was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discrimination between chimeric proteins with unique sources in the genome and proteins that have multiple alternative sources, which is essential for their functional analysis. For biological context and related studies, see our publication: Çakır et al. (2024, preprint).
 
-If you use ShiftSCAN in your research, please cite the following article:
+If you use ChimSource in your research, please cite the following article:
 
-Umut Çakır, Noujoud Gabed, Ali Yurtseven, Igor Kryvoruchko (2025). ShiftSCAN, a program that predicts potential alternative sources of mass spectrometry-derived peptides, improves the accuracy of studies on novel amino acid sequences. bioRxiv (Cold Spring Harbor Laboratory). https://doi.org/10.1101/2025.05.30.656965
+Umut Çakır, Noujoud Gabed, Ali Yurtseven, Igor Kryvoruchko (2025). ChimSource, a program that predicts potential alternative sources of mass spectrometry-derived peptides, improves the accuracy of studies on novel amino acid sequences. bioRxiv (Cold Spring Harbor Laboratory). https://doi.org/10.1101/2025.05.30.656965
 
 To report bugs, ask questions, or suggest features, feel free to open an issue on GitHub. Your feedback and citations help us improve and sustain this tool.
