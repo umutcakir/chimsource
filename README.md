@@ -1,4 +1,4 @@
-# ChimSource: Shift detection and Source Confirmation by Alignment and Navigation  
+# ChimSource: Chimeric MS Peptide Sources
 
 A computational pipeline for detecting alternative chimeric and non-chimeric sources of mass spectrometry-identified peptides.
 
