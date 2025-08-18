@@ -18,7 +18,7 @@ setup(
     },
     author="Umut Cakir & Ali Yurtseven",
     author_email="hpumut@gmail.com",
-    description="ChimSource CLI: chimsource",
+    description="ChiMSource CLI: chimsource",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url= "https://github.com/umutcakir/chimsource",
