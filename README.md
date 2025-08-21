@@ -100,6 +100,6 @@ ChiMSource was developed to advance research on mosaic translation and programme
 
 If you use ChiMSource in your research, please cite the following article:
 
-Umut Çakır, Noujoud Gabed, Ali Yurtseven, Igor Kryvoruchko (2025). ChiMSource, a program that predicts potential alternative sources of mass spectrometry-derived peptides, improves the accuracy of studies on novel amino acid sequences. bioRxiv (Cold Spring Harbor Laboratory). https://doi.org/10.1101/2025.05.30.656965
+Umut Çakır, Noujoud Gabed, Ali Yurtseven and Igor Kryvoruchko, ChiMSource improves the accuracy of studies on novel amino acid sequences by predicting alternative sources of mass spectrometry-derived peptidesChiMSource predicts alternative sources of non-canonical peptides, Computational and Structural Biotechnology Journal, (2025) doi: https://doi.org/10.1016/j.csbj.2025.08.023
 
 To report bugs, ask questions, or suggest features, feel free to open an issue on GitHub. Your feedback and citations help us improve and sustain this tool.
