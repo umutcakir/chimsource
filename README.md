@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="666" height="225" alt="chimsource" src="https://github.com/user-attachments/assets/0b413bae-e643-449d-b6f6-57e52d5517ca" />
+</p>
+
 # ChiMSource: Chimeric MS Peptide Sources
 
 A computational pipeline for detecting alternative chimeric and non-chimeric sources of mass spectrometry-identified peptides.
