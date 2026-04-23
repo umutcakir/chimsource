@@ -83,6 +83,8 @@ ChiMSource includes a browser-based graphical interface for interactive analysis
 
 All necessary files and detailed instructions are provided in the "GUI_version" folder.
 
+<img width="2115" height="1264" alt="image" src="https://github.com/user-attachments/assets/52208b35-faed-48c9-a5ec-7d89b01e3af3" />
+
 ### GUI Features
 
 - Drag-and-drop file upload for nucleotide and peptide FASTA files (supports plain and gzip-compressed formats)
