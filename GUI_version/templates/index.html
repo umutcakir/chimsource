@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChiMSource — Chimeric Peptide Source Identification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ====================================================================
+   ROOT & RESET
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:        #1b3a5c;
+  --navy-deep:   #122843;
+  --navy-light:  #2a5a8c;
+  --navy-pale:   #e8eff7;
+
+  --bg:          #f4f6fa;
+  --white:       #ffffff;
+  --surface:     #ffffff;
+  --surface-alt: #f9fafb;
+  --border:      #dde3ed;
+  --border-hi:   #b8c4d6;
+
+  --text:        #2e3744;
+  --text-dim:    #6b7a90;
+  --text-bright: #111820;
+
+  --accent:      #1b3a5c;
+  --accent-hover:#245080;
+  --accent-glow: rgba(27, 58, 92, 0.07);
+
+  --green:       #1a9e5c;
+  --green-bg:    #e6f7ef;
+  --red:         #d63c3c;
+  --red-bg:      #fceaea;
+  --blue-tag:    #2a5a8c;
+  --blue-tag-bg: #e0ecf8;
+
+  --radius:      12px;
+  --radius-sm:   8px;
+  --font:        'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:        'JetBrains Mono', 'Consolas', monospace;
+  --shadow:      0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+}
+
+html { font-size: 18px; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--navy-light); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ====================================================================
+   HEADER
+   ==================================================================== */
+.accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--navy-deep) 0%, var(--navy-light) 40%, #4a90c4 70%, var(--navy-pale) 100%);
+}
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.app-header .logo-img { height: 52px; width: auto; }
+.app-header .header-text { display: flex; flex-direction: column; }
+.app-header .header-title {
+  font-size: 1.35rem; font-weight: 700; color: var(--navy);
+  letter-spacing: -0.01em; line-height: 1.2;
+}
+.app-header .header-sub { font-size: 0.95rem; color: var(--text-dim); }
+
+/* ====================================================================
+   LAYOUT
+   ==================================================================== */
+.app-body {
+  max-width: 1400px; margin: 0 auto;
+  padding: 1.8rem 2rem 3rem;
+  display: grid; grid-template-columns: 430px 1fr;
+  gap: 1.8rem; align-items: start;
+}
+
+/* ====================================================================
+   PANEL
+   ==================================================================== */
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+.panel-section { padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--border); }
+.panel-section:last-child { border-bottom: none; }
+.panel-title {
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--navy); margin-bottom: 0.9rem;
+  display: flex; align-items: center; gap: 0.45rem;
+}
+.panel-title .pt-icon { font-size: 1rem; }
+
+label.field { display: block; margin-bottom: 0.85rem; }
+label.field .label-text {
+  display: block; font-size: 1rem; font-weight: 600;
+  color: var(--text); margin-bottom: 0.2rem;
+}
+label.field .label-hint {
+  display: block; font-size: 0.88rem; color: var(--text-dim);
+  margin-bottom: 0.35rem; line-height: 1.45;
+}
+
+input[type="number"], input[type="text"], select {
+  width: 100%; background: var(--surface-alt);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem; color: var(--text-bright);
+  font-family: var(--mono); font-size: 1rem; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus {
+  border-color: var(--navy-light);
+  box-shadow: 0 0 0 3px rgba(42,90,140,0.12);
+}
+
+/* Drop zones */
+.drop-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 1.05rem 1.1rem; text-align: center; cursor: pointer;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative; margin-bottom: 0.75rem; background: var(--surface-alt);
+}
+.drop-zone:hover, .drop-zone.dragover { border-color: var(--navy-light); background: var(--navy-pale); }
+.drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.drop-zone .dz-icon { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.drop-zone .dz-text { font-size: 0.95rem; color: var(--text-dim); }
+.drop-zone .dz-file { font-size: 0.95rem; color: var(--green); font-weight: 600; word-break: break-all; margin-top: 0.2rem; }
+
+/* Toggles */
+.toggle-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; margin-bottom: 0.85rem;
+}
+.toggle-row .toggle-info { flex: 1; }
+.toggle-row .label-text { margin-bottom: 0; font-size: 1rem; font-weight: 600; }
+.toggle-row .label-hint { font-size: 0.88rem; color: var(--text-dim); line-height: 1.4; margin-top: 0.15rem; }
+.toggle {
+  width: 44px; height: 24px; background: var(--border); border-radius: 12px;
+  position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; margin-top: 2px;
+}
+.toggle.active { background: var(--navy-light); }
+.toggle::after {
+  content: ''; position: absolute; width: 18px; height: 18px;
+  background: var(--white); border-radius: 50%; top: 3px; left: 3px;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle.active::after { transform: translateX(20px); }
+
+.param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 1rem; }
+.param-grid .field-wide { grid-column: 1 / -1; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-family: var(--font); font-weight: 700; font-size: 1.05rem;
+  border: none; border-radius: var(--radius-sm); padding: 0.75rem 1.5rem;
+  cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--navy); color: #fff; width: 100%;
+  box-shadow: 0 2px 8px rgba(27,58,92,0.25);
+}
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(27,58,92,0.30); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.btn-secondary {
+  background: var(--white); color: var(--navy); border: 1px solid var(--border);
+  font-size: 0.95rem; font-weight: 600;
+}
+.btn-secondary:hover { border-color: var(--navy-light); background: var(--navy-pale); }
+
+/* ====================================================================
+   MAIN CONTENT
+   ==================================================================== */
+.main-content { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.status-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.4rem 1.6rem;
+}
+.status-card.hidden { display: none; }
+.status-title {
+  font-weight: 700; font-size: 1.15rem; color: var(--navy);
+  margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+}
+
+.log-feed {
+  font-family: var(--mono); font-size: 0.92rem; color: var(--text-dim);
+  max-height: 180px; overflow-y: auto; padding: 0.75rem 0.95rem;
+  background: var(--surface-alt); border-radius: var(--radius-sm);
+  border: 1px solid var(--border); margin-bottom: 0.85rem; line-height: 1.7;
+  transition: max-height 0.3s ease;
+}
+.log-feed.expanded { max-height: 600px; }
+.log-controls { display: flex; justify-content: flex-end; margin-bottom: 0.4rem; }
+.log-controls button {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  font-size: 0.82rem; color: var(--text-dim); cursor: pointer;
+  padding: 0.2rem 0.6rem; font-family: var(--font);
+}
+.log-controls button:hover { background: var(--navy-pale); color: var(--navy); }
+.log-feed .log-line { padding: 0.1rem 0; }
+.log-feed .log-line.error { color: var(--red); font-weight: 500; }
+.log-feed .log-line.success { color: var(--green); font-weight: 600; }
+.log-feed .log-line.verbose { color: var(--text-dim); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.4rem; padding: 0.8rem 1.2rem; border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.pagination button {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  padding: 0.35rem 0.7rem; font-size: 0.9rem; cursor: pointer;
+  font-family: var(--font); color: var(--text);
+}
+.pagination button:hover { background: var(--navy-pale); color: var(--navy); }
+.pagination button.active { background: var(--navy); color: white; border-color: var(--navy); font-weight: 600; }
+.pagination button:disabled { opacity: 0.4; cursor: default; }
+.pagination .page-info { font-size: 0.88rem; color: var(--text-dim); margin: 0 0.5rem; font-family: var(--mono); }
+
+.progress-group { margin-bottom: 0.55rem; }
+.progress-label {
+  display: flex; justify-content: space-between; font-size: 0.92rem;
+  color: var(--text-dim); margin-bottom: 0.3rem; font-weight: 500;
+}
+.progress-track { height: 10px; background: var(--navy-pale); border-radius: 5px; overflow: hidden; }
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--navy-light), #4a90c4);
+  border-radius: 5px; width: 0%; transition: width 0.35s ease;
+}
+.progress-fill.done { background: linear-gradient(90deg, var(--green), #2bc97a); }
+
+/* Results */
+.results-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.results-card.hidden { display: none; }
+.hidden { display: none !important; }
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.4rem; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 0.5rem;
+}
+.results-header .results-title { font-weight: 700; font-size: 1.15rem; color: var(--navy); }
+.results-header .results-count { font-size: 0.92rem; color: var(--text-dim); font-family: var(--mono); }
+.results-actions { display: flex; gap: 0.6rem; }
+
+.table-wrap { overflow-x: auto; max-height: 540px; overflow-y: auto; }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.table-wrap thead th {
+  position: sticky; top: 0; background: var(--navy-pale); color: var(--navy);
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 0.82rem; padding: 0.75rem 0.95rem; text-align: left;
+  border-bottom: 2px solid var(--border); white-space: nowrap; z-index: 1;
+}
+.table-wrap tbody td {
+  padding: 0.65rem 0.95rem; border-bottom: 1px solid var(--border);
+  color: var(--text); max-width: 280px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.table-wrap tbody tr:hover td { background: var(--accent-glow); }
+.table-wrap tbody tr:nth-child(even) td { background: var(--surface-alt); }
+.table-wrap tbody tr:nth-child(even):hover td { background: var(--accent-glow); }
+.table-wrap tbody td.seq { font-family: var(--mono); font-size: 0.88rem; max-width: 200px; }
+
+.badge {
+  display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px;
+  font-size: 0.85rem; font-weight: 700;
+}
+.badge-fs { background: var(--blue-tag-bg); color: var(--blue-tag); }
+.badge-direct { background: var(--green-bg); color: var(--green); }
+
+/* Welcome */
+.welcome-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 3rem 2.5rem; text-align: center;
+}
+.welcome-card .welcome-logo { height: 72px; margin-bottom: 1rem; }
+.welcome-card h2 { color: var(--navy); font-size: 1.45rem; margin-bottom: 0.6rem; font-weight: 700; }
+.welcome-card p {
+  color: var(--text-dim); font-size: 1.05rem; max-width: 540px;
+  margin: 0 auto; line-height: 1.65;
+}
+.welcome-card .cite {
+  margin-top: 1.4rem; font-size: 0.9rem; color: var(--text-dim);
+  font-style: italic; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.55;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2.5px solid var(--navy-pale); border-top-color: var(--navy);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+
+@media (max-width: 960px) { .app-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="accent-bar"></div>
+
+<header class="app-header">
+  <img src="/static/logo.png" alt="ChiMSource Logo" class="logo-img">
+  <div class="header-text">
+    <div class="header-title">ChiMSource</div>
+    <div class="header-sub">Chimeric peptide source identification via frameshift analysis</div>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel" id="paramPanel">
+
+    <div class="panel-section">
+      <div class="panel-title"><span class="pt-icon">📂</span> Input Files</div>
+      <div class="drop-zone" id="dzNuc">
+        <input type="file" accept=".fasta,.fa,.fna,.fasta.gz,.fa.gz,.fna.gz,.gz" id="fileNuc">
+        <div class="dz-icon">🧬</div>
+        <div class="dz-text">Drop nucleotide FASTA or click to browse</div>
+        <div class="dz-file" id="dzNucName"></div>
+      </div>
+      <div class="drop-zone" id="dzPep">
+        <input type="file" accept=".fasta,.fa,.faa,.fasta.gz,.fa.gz,.faa.gz,.gz" id="filePep">
+        <div class="dz-icon"><svg width="160" height="36" viewBox="0 0 160 36" fill="none"><line x1="12" y1="18" x2="148" y2="18" stroke="#dde3ed" stroke-width="3" stroke-linecap="round"/><circle cx="12" cy="18" r="10" fill="#1b3a5c"/><text x="12" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">P</text><circle cx="34.6" cy="18" r="10" fill="#a0a8b4"/><text x="34.6" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">E</text><circle cx="57.2" cy="18" r="10" fill="#1b3a5c"/><text x="57.2" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">P</text><circle cx="79.8" cy="18" r="10" fill="#4a90c4"/><text x="79.8" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">T</text><circle cx="102.4" cy="18" r="10" fill="#1a9e5c"/><text x="102.4" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">I</text><circle cx="125" cy="18" r="10" fill="#7b5ea7"/><text x="125" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">D</text><circle cx="147.6" cy="18" r="10" fill="#a0a8b4"/><text x="147.6" y="22.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700">E</text></svg></div>
+        <div class="dz-text">Drop peptide FASTA or click to browse</div>
+        <div class="dz-file" id="dzPepName"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title"><span class="pt-icon">⚙️</span> Parameters</div>
+      <div class="param-grid">
+        <label class="field">
+          <span class="label-text">Max gap</span>
+          <span class="label-hint">Max frameshift size in nt. Value of 2 permits shifts of 0, ±1, ±2 nt.</span>
+          <input type="number" id="maxGap" value="2" min="0" max="100">
+        </label>
+        <label class="field field-wide">
+          <span class="label-text">Codon table</span>
+          <span class="label-hint">NCBI genetic code table for translation.</span>
+          <select id="codonTable">
+            <option value="1" selected>1 — The Standard Code</option>
+            <option value="2">2 — Vertebrate Mitochondrial Code</option>
+            <option value="3">3 — Yeast Mitochondrial Code</option>
+            <option value="4">4 — Mold, Protozoan, Coelenterate Mito. &amp; Mycoplasma/Spiroplasma</option>
+            <option value="5">5 — Invertebrate Mitochondrial Code</option>
+            <option value="6">6 — Ciliate, Dasycladacean and Hexamita Nuclear Code</option>
+            <option value="9">9 — Echinoderm and Flatworm Mitochondrial Code</option>
+            <option value="10">10 — Euplotid Nuclear Code</option>
+            <option value="11">11 — Bacterial, Archaeal and Plant Plastid Code</option>
+            <option value="12">12 — Alternative Yeast Nuclear Code</option>
+            <option value="13">13 — Ascidian Mitochondrial Code</option>
+            <option value="14">14 — Alternative Flatworm Mitochondrial Code</option>
+            <option value="15">15 — Blepharisma Nuclear Code</option>
+            <option value="16">16 — Chlorophycean Mitochondrial Code</option>
+            <option value="21">21 — Trematode Mitochondrial Code</option>
+            <option value="22">22 — Scenedesmus obliquus Mitochondrial Code</option>
+            <option value="23">23 — Thraustochytrium Mitochondrial Code</option>
+            <option value="24">24 — Rhabdopleuridae Mitochondrial Code</option>
+            <option value="25">25 — Candidate Division SR1 and Gracilibacteria Code</option>
+            <option value="26">26 — Pachysolen tannophilus Nuclear Code</option>
+            <option value="27">27 — Karyorelict Nuclear Code</option>
+            <option value="28">28 — Condylostoma Nuclear Code</option>
+            <option value="29">29 — Mesodinium Nuclear Code</option>
+            <option value="30">30 — Peritrich Nuclear Code</option>
+            <option value="31">31 — Blastocrithidia Nuclear Code</option>
+            <option value="32">32 — Balanophoraceae Plastid Code</option>
+            <option value="33">33 — Cephalodiscidae Mitochondrial UAA-Tyr Code</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="label-text">Threads</span>
+          <span class="label-hint">Parallel threads. Set based on your CPU cores.</span>
+          <input type="number" id="numThreads" value="{{ cpu_count }}" min="1" max="128">
+        </label>
+        <label class="field">
+          <span class="label-text">Max transcript (nt)</span>
+          <span class="label-hint">Sequences exceeding this are trimmed in output.</span>
+          <input type="number" id="maxTranscript" value="30000" min="1000">
+        </label>
+        <label class="field">
+          <span class="label-text">Flanking seq (nt)</span>
+          <span class="label-hint">Flanking nt upstream &amp; downstream of the match site.</span>
+          <input type="number" id="maxFlanking" value="500" min="50">
+        </label>
+        <label class="field field-wide">
+          <span class="label-text">Output name</span>
+          <span class="label-hint">Base name for the output TSV and parameters files.</span>
+          <input type="text" id="outputName" value="results">
+        </label>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title"><span class="pt-icon">🔧</span> Options</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="label-text">Reverse complement check</span>
+          <span class="label-hint">Recommended. Both strands can encode peptides in genomic and repeat sequences.</span>
+        </div>
+        <div class="toggle active" id="togRevComp" data-value="true"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="label-text">Verbose logging</span>
+          <span class="label-hint">Shows per-peptide timing details. Useful for diagnosing slow genome runs.</span>
+        </div>
+        <div class="toggle" id="togVerbose" data-value="false"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="label-text">Save log file</span>
+          <span class="label-hint">Write all log messages to a downloadable text file.</span>
+        </div>
+        <div class="toggle active" id="togSaveLog" data-value="true"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="btn btn-primary" id="btnRun" disabled>▶ &nbsp;Run Analysis</button>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <div class="welcome-card" id="welcomeCard">
+      <img src="/static/logo.png" alt="ChiMSource" class="welcome-logo">
+      <h2>Welcome to ChiMSource</h2>
+      <p>Upload a nucleotide FASTA file (genome, transcriptome, or repeatome) and a peptide FASTA file, configure your parameters, and click <strong>Run Analysis</strong> to identify chimeric peptide sources via frameshift analysis.</p>
+      <div class="cite">Çakır, U., Gabed, N., Yurtseven, A., &amp; Kryvoruchko, I. (2025) ChiMSource improves the accuracy of studies on novel amino acid sequences by predicting alternative sources of mass spectrometry-derived peptides. <em>Computational and Structural Biotechnology Journal</em>, 27, 3704–3709.</div>
+    </div>
+
+    <div class="status-card hidden" id="statusCard">
+      <div class="status-title">
+        <span class="spinner" id="statusSpinner"></span>
+        Analysis Progress
+      </div>
+      <div class="log-controls">
+        <button id="btnToggleLog" title="Toggle log height">▼ Expand log</button>
+      </div>
+      <div class="log-feed expanded" id="logFeed"></div>
+      <div class="progress-group" id="pgParseNuc" style="display:none;">
+        <div class="progress-label"><span>Parsing nucleotide file</span><span id="pgParseNucPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="pgParseNucBar"></div></div>
+      </div>
+      <div class="progress-group" id="pgParsePep" style="display:none;">
+        <div class="progress-label"><span>Parsing peptide file</span><span id="pgParsePepPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="pgParsePepBar"></div></div>
+      </div>
+      <div class="progress-group" id="pgForward" style="display:none;">
+        <div class="progress-label"><span>Forward analysis</span><span id="pgForwardPct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="pgForwardBar"></div></div>
+      </div>
+      <div class="progress-group" id="pgReverse" style="display:none;">
+        <div class="progress-label"><span>Reverse complement analysis</span><span id="pgReversePct">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="pgReverseBar"></div></div>
+      </div>
+    </div>
+
+    <div class="results-card hidden" id="resultsCard">
+      <div class="results-header">
+        <div>
+          <span class="results-title">Results</span>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+        <div class="results-actions">
+          <button class="btn btn-secondary" id="btnDownloadTsv">⬇ Download TSV</button>
+          <button class="btn btn-secondary" id="btnDownloadParams">⬇ Parameters</button>
+          <button class="btn btn-secondary hidden" id="btnDownloadLog">⬇ Log</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="tableWrap"></div>
+      <div class="pagination hidden" id="paginationBar"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  const fileNuc = document.getElementById('fileNuc');
+  const filePep = document.getElementById('filePep');
+  const dzNuc = document.getElementById('dzNuc');
+  const dzPep = document.getElementById('dzPep');
+  const dzNucName = document.getElementById('dzNucName');
+  const dzPepName = document.getElementById('dzPepName');
+  const btnRun = document.getElementById('btnRun');
+  const welcomeCard = document.getElementById('welcomeCard');
+  const statusCard = document.getElementById('statusCard');
+  const resultsCard = document.getElementById('resultsCard');
+  const logFeed = document.getElementById('logFeed');
+  const statusSpinner = document.getElementById('statusSpinner');
+  const togRevComp = document.getElementById('togRevComp');
+  const togVerbose = document.getElementById('togVerbose');
+  const togSaveLog = document.getElementById('togSaveLog');
+  const btnToggleLog = document.getElementById('btnToggleLog');
+  let currentJobId = null;
+
+  /* --- Drop zones --- */
+  function setupDropZone(dz, input, nameEl) {
+    ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('dragover'); }));
+    ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('dragover'); }));
+    dz.addEventListener('drop', ev => { const f=ev.dataTransfer.files; if(f.length){input.files=f; updateFileName(input,nameEl);} });
+    input.addEventListener('change', () => updateFileName(input, nameEl));
+  }
+  function updateFileName(input, nameEl) {
+    if (input.files.length) {
+      const f=input.files[0]; nameEl.textContent=`${f.name}  (${(f.size/1048576).toFixed(1)} MB)`;
+    } else nameEl.textContent='';
+    checkReady();
+  }
+  setupDropZone(dzNuc, fileNuc, dzNucName);
+  setupDropZone(dzPep, filePep, dzPepName);
+  function checkReady() { btnRun.disabled=!(fileNuc.files.length && filePep.files.length); }
+
+  /* --- Toggles --- */
+  function setupToggle(el) {
+    el.addEventListener('click', () => {
+      const active=el.classList.toggle('active'); el.dataset.value=active?'true':'false';
+    });
+  }
+  setupToggle(togRevComp); setupToggle(togVerbose); setupToggle(togSaveLog);
+
+  /* --- Fix 2: Log expand/collapse (default: expanded) --- */
+  btnToggleLog.addEventListener('click', () => {
+    const expanded = logFeed.classList.toggle('expanded');
+    btnToggleLog.textContent = expanded ? '▲ Collapse log' : '▼ Expand log';
+  });
+
+  /* --- Run analysis --- */
+  btnRun.addEventListener('click', runAnalysis);
+
+  async function runAnalysis() {
+    btnRun.disabled=true; welcomeCard.style.display='none';
+    statusCard.classList.remove('hidden'); resultsCard.classList.add('hidden');
+    logFeed.innerHTML=''; resetProgress(); statusSpinner.style.display='';
+    document.getElementById('paginationBar').classList.add('hidden');
+    document.getElementById('btnDownloadLog').classList.add('hidden');
+
+    const fd=new FormData();
+    fd.append('nucleotide_file', fileNuc.files[0]);
+    fd.append('peptide_file', filePep.files[0]);
+    fd.append('max_gap', document.getElementById('maxGap').value);
+    fd.append('codon_table', document.getElementById('codonTable').value);
+    fd.append('num_threads', document.getElementById('numThreads').value);
+    fd.append('max_transcript_length', document.getElementById('maxTranscript').value);
+    fd.append('max_flanking_seq', document.getElementById('maxFlanking').value);
+    fd.append('output_name', document.getElementById('outputName').value||'results');
+    fd.append('verbose', document.getElementById('togVerbose').dataset.value);
+    fd.append('save_log', togSaveLog.dataset.value);
+    fd.append('no_reverse_complement_check', togRevComp.dataset.value==='true'?'false':'true');
+
+    addLog('Uploading files...');
+    try {
+      const resp=await fetch('/api/submit',{method:'POST',body:fd});
+      const data=await resp.json();
+      if(data.error){addLog(data.error,'error'); btnRun.disabled=false; return;}
+      currentJobId=data.job_id; addLog('Job submitted — listening for progress...');
+      listenProgress(currentJobId);
+    } catch(e) { addLog('Network error: '+e.message,'error'); btnRun.disabled=false; }
+  }
+
+  /* --- SSE progress listener --- */
+  function listenProgress(jobId) {
+    const es=new EventSource('/api/progress/'+jobId);
+    es.onmessage=function(ev) {
+      const msg=JSON.parse(ev.data); if(!msg.type) return;
+      if(msg.type==='log') {
+        const isVerbose = /^(\s*(🧬|📊|Translating |Translation:|Peptide \d|Frameshift|Direct |Done in|×|✅ Worker|\[PROGRESS\]|\[SUMMARY\]))/.test(msg.message);
+        addLog(msg.message, isVerbose ? 'verbose' : '');
+      }
+      else if(msg.type==='progress') updateProgress(msg.stage,msg.done,msg.total);
+      else if(msg.type==='done') {
+        es.close(); addLog(`Analysis complete — ${msg.total_results} results found.`,'success');
+        statusSpinner.style.display='none'; btnRun.disabled=false;
+        if(msg.has_log) document.getElementById('btnDownloadLog').classList.remove('hidden');
+        if(msg.total_results>0) loadResults(jobId, 1);
+      } else if(msg.type==='error') {
+        es.close(); addLog('Error: '+msg.message,'error');
+        statusSpinner.style.display='none'; btnRun.disabled=false;
+      }
+    };
+    es.onerror=function(){es.close(); addLog('Connection to server lost.','error'); statusSpinner.style.display='none'; btnRun.disabled=false;};
+  }
+
+  /* --- Progress bars --- */
+  const stageMap={
+    parse_nuc:{group:'pgParseNuc',bar:'pgParseNucBar',pct:'pgParseNucPct'},
+    parse_pep:{group:'pgParsePep',bar:'pgParsePepBar',pct:'pgParsePepPct'},
+    forward:{group:'pgForward',bar:'pgForwardBar',pct:'pgForwardPct'},
+    reverse:{group:'pgReverse',bar:'pgReverseBar',pct:'pgReversePct'},
+  };
+  function resetProgress() {
+    Object.values(stageMap).forEach(s=>{
+      document.getElementById(s.group).style.display='none';
+      document.getElementById(s.bar).style.width='0%';
+      document.getElementById(s.bar).classList.remove('done');
+      document.getElementById(s.pct).textContent='0%';
+    });
+  }
+  function updateProgress(stage,done,total) {
+    const s=stageMap[stage]; if(!s) return;
+    document.getElementById(s.group).style.display='';
+    const pct=total>0?Math.min(100,Math.round(done/total*100)):0;
+    document.getElementById(s.bar).style.width=pct+'%';
+    document.getElementById(s.pct).textContent=pct+'%';
+    if(pct>=100) document.getElementById(s.bar).classList.add('done');
+  }
+
+  /* --- Log --- */
+  function addLog(msg,cls) {
+    const div=document.createElement('div');
+    div.className='log-line'+(cls?' '+cls:'');
+    div.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+    logFeed.appendChild(div); logFeed.scrollTop=logFeed.scrollHeight;
+  }
+
+  /* --- Fix 1: Paginated results --- */
+  const ROWS_PER_PAGE = 50;
+
+  async function loadResults(jobId, page) {
+    try {
+      const resp=await fetch(`/api/results/${jobId}?page=${page}&per_page=${ROWS_PER_PAGE}`);
+      const data=await resp.json();
+      if(data.error){addLog(data.error,'error'); return;}
+      resultsCard.classList.remove('hidden');
+      document.getElementById('resultsCount').textContent=
+        `${data.total_rows} total rows — page ${data.page} of ${data.total_pages}`;
+
+      /* Build table */
+      let html='<table><thead><tr>';
+      data.columns.forEach(c=>{html+='<th>'+esc(c)+'</th>';});
+      html+='</tr></thead><tbody>';
+      const seqCols=new Set(['Nucleotide Sequence','Protein Sequence','Segment 1','Segment 2']);
+      data.rows.forEach(row=>{
+        html+='<tr>';
+        row.forEach((cell,i)=>{
+          const isSeq=seqCols.has(data.columns[i]);
+          const isType=data.columns[i]==='Type';
+          let content=esc(String(cell));
+          if(isType){
+            if(cell==='Frameshift') content='<span class="badge badge-fs">Frameshift</span>';
+            else content='<span class="badge badge-direct">Direct</span>';
+          }
+          html+='<td'+(isSeq?' class="seq"':'')+'>'+content+'</td>';
+        });
+        html+='</tr>';
+      });
+      html+='</tbody></table>';
+      document.getElementById('tableWrap').innerHTML=html;
+
+      /* Build pagination bar */
+      buildPagination(jobId, data.page, data.total_pages, data.total_rows);
+
+      /* Download buttons */
+      document.getElementById('btnDownloadTsv').onclick=()=>window.location='/api/download/'+jobId+'/tsv';
+      document.getElementById('btnDownloadParams').onclick=()=>window.location='/api/download/'+jobId+'/params';
+      document.getElementById('btnDownloadLog').onclick=()=>window.location='/api/download/'+jobId+'/log';
+
+      /* Scroll results into view */
+      resultsCard.scrollIntoView({behavior:'smooth', block:'start'});
+    } catch(e) { addLog('Failed to load results: '+e.message,'error'); }
+  }
+
+  function buildPagination(jobId, currentPage, totalPages, totalRows) {
+    const bar = document.getElementById('paginationBar');
+    bar.classList.remove('hidden');
+    bar.innerHTML = '';
+
+    if (totalPages <= 1) { bar.classList.add('hidden'); return; }
+
+    /* Prev button */
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '◀ Prev';
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.onclick = () => loadResults(jobId, currentPage - 1);
+    bar.appendChild(prevBtn);
+
+    /* Page buttons — show up to 7 pages with ellipsis */
+    const pages = getPageRange(currentPage, totalPages, 7);
+    let lastPage = 0;
+    pages.forEach(p => {
+      if (p - lastPage > 1) {
+        const dots = document.createElement('span');
+        dots.className = 'page-info';
+        dots.textContent = '…';
+        bar.appendChild(dots);
+      }
+      const btn = document.createElement('button');
+      btn.textContent = p;
+      if (p === currentPage) btn.classList.add('active');
+      btn.onclick = () => loadResults(jobId, p);
+      bar.appendChild(btn);
+      lastPage = p;
+    });
+
+    /* Page info */
+    const info = document.createElement('span');
+    info.className = 'page-info';
+    info.textContent = `${totalRows} rows`;
+    bar.appendChild(info);
+
+    /* Next button */
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next ▶';
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.onclick = () => loadResults(jobId, currentPage + 1);
+    bar.appendChild(nextBtn);
+  }
+
+  function getPageRange(current, total, maxButtons) {
+    if (total <= maxButtons) return Array.from({length:total},(_,i)=>i+1);
+    const half = Math.floor(maxButtons / 2);
+    let start = Math.max(1, current - half);
+    let end = Math.min(total, start + maxButtons - 1);
+    if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+    const pages = [];
+    if (start > 1) pages.push(1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < total) pages.push(total);
+    return [...new Set(pages)];
+  }
+
+  function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+})();
+</script>
+</body>
+</html>
