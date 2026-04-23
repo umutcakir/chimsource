@@ -77,6 +77,21 @@ Contains tabular data on detected chimeric and non-chimeric sequences with these
 
 ---
 
+## Web-Based GUI
+
+ChiMSource includes a browser-based graphical interface for interactive analysis. The GUI is accessible from any browser on the same machine and provides a user-friendly way to configure parameters, monitor progress in real-time, and download results.
+
+All necessary files and detailed instructions are provided in the "GUI_version" folder.
+
+### GUI Features
+
+- Drag-and-drop file upload for nucleotide and peptide FASTA files (supports plain and gzip-compressed formats)
+- Real-time progress bars for file parsing, forward analysis, and reverse complement analysis
+- Live log feed showing each stage of the pipeline
+- Interactive results table with pagination and preview of results
+- Download buttons for the full TSV results, parameters log, and analysis log
+- All parameters configurable via the sidebar panel: Maximum gap size, Codon table selection (all 27 NCBI tables), Number of threads, Maximum transcript length, Maximum flanking sequence length, Reverse complement analysis toggle, Verbose logging option, Custom output file naming.
+
 ## ChiMSource Installation Guide
 
 ### Requirements
