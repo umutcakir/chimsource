@@ -40,7 +40,7 @@ CHIMSOURCE_PORT=8080 python app.py
 - **Drag-and-drop file upload** for nucleotide and peptide FASTA files
 - **Real-time progress bars** for file parsing, forward analysis, and reverse complement analysis
 - **Live log feed** showing each stage of the pipeline
-- **Interactive results table** with preview of the first 200 rows
+- **Interactive results table** with pagination and preview of results
 - **Download buttons** for the full TSV results and the parameters log
 - **All parameters configurable** via the sidebar panel (max gap, codon table, threads, BLAST settings, flanking sequence length, etc.)
 
